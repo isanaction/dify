@@ -207,3 +207,6 @@ plugins.jsonl
 
 # mise
 mise.toml
+
+# backups
+backups/*
