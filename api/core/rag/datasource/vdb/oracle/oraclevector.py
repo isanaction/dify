@@ -197,7 +197,6 @@ class OracleVector(BaseVector):
         Search the nearest neighbors to a vector.
 
         :param query_vector: The input vector to search for similar items.
-        :param top_k: The number of nearest neighbors to return, default is 5.
         :return: List of Documents that are nearest to the query vector.
         """
         top_k = kwargs.get("top_k", 4)
@@ -229,7 +228,7 @@ class OracleVector(BaseVector):
 
         top_k = kwargs.get("top_k", 5)
         # just not implement fetch by score_threshold now, may be later
-        score_threshold = float(kwargs.get("score_threshold") or 0.0)
+        # score_threshold = float(kwargs.get("score_threshold") or 0.0)
         if len(query) > 0:
             # Check which language the query is in
             zh_pattern = re.compile("[\u4e00-\u9fa5]+")
@@ -240,7 +239,7 @@ class OracleVector(BaseVector):
                 words = pseg.cut(query)
                 current_entity = ""
                 for word, pos in words:
-                    if pos in {"nr", "Ng", "eng", "nz", "n", "ORG", "v"}:  # nr: 人名, ns: 地名, nt: 机构名
+                    if pos in {"nr", "Ng", "eng", "nz", "n", "ORG", "v"}:  # nr: 人名，ns: 地名，nt: 机构名
                         current_entity += word
                     else:
                         if current_entity:

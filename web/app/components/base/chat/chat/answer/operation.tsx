@@ -7,7 +7,6 @@ import {
 import { useTranslation } from 'react-i18next'
 import {
   RiClipboardLine,
-  RiEditLine,
   RiResetLeftLine,
   RiThumbDownLine,
   RiThumbUpLine,
@@ -16,6 +15,7 @@ import type { ChatItem } from '../../types'
 import { useChatContext } from '../context'
 import copy from 'copy-to-clipboard'
 import Toast from '@/app/components/base/toast'
+import AnnotationCtrlButton from '@/app/components/base/features/new-feature-panel/annotation-reply/annotation-ctrl-button'
 import EditReplyModal from '@/app/components/app/annotation/edit-annotation-modal'
 import Log from '@/app/components/base/chat/chat/log'
 import ActionButton, { ActionButtonState } from '@/app/components/base/action-button'
@@ -81,13 +81,13 @@ const Operation: FC<OperationProps> = ({
   const operationWidth = useMemo(() => {
     let width = 0
     if (!isOpeningStatement)
-      width += 28
+      width += 26
     if (!isOpeningStatement && showPromptLog)
-      width += 102 + 8
+      width += 28 + 8
     if (!isOpeningStatement && config?.text_to_speech?.enabled)
-      width += 33
+      width += 26
     if (!isOpeningStatement && config?.supportAnnotation && config?.annotation_reply?.enabled)
-      width += 56 + 8
+      width += 26
     if (config?.supportFeedback && !localFeedback?.rating && onFeedback && !isOpeningStatement)
       width += 60 + 8
     if (config?.supportFeedback && localFeedback?.rating && onFeedback && !isOpeningStatement)
@@ -134,13 +134,19 @@ const Operation: FC<OperationProps> = ({
               </ActionButton>
             )}
             {(config?.supportAnnotation && config.annotation_reply?.enabled) && (
-              <ActionButton onClick={() => setIsShowReplyModal(true)}>
-                <RiEditLine className='h-4 w-4' />
-              </ActionButton>
+              <AnnotationCtrlButton
+                appId={config?.appId || ''}
+                messageId={id}
+                cached={!!annotation?.id}
+                query={question}
+                answer={content}
+                onAdded={(id, authorName) => onAnnotationAdded?.(id, authorName, question, content, index)}
+                onEdit={() => setIsShowReplyModal(true)}
+              />
             )}
           </div>
         )}
-        {!isOpeningStatement && config?.supportFeedback && onFeedback && (
+        {!isOpeningStatement && config?.supportFeedback && !localFeedback?.rating && onFeedback && (
           <div className='ml-1 hidden items-center gap-0.5 rounded-[10px] border-[0.5px] border-components-actionbar-border bg-components-actionbar-bg p-0.5 shadow-md backdrop-blur-sm group-hover:flex'>
             {!localFeedback?.rating && (
               <>
@@ -152,6 +158,10 @@ const Operation: FC<OperationProps> = ({
                 </ActionButton>
               </>
             )}
+          </div>
+        )}
+        {!isOpeningStatement && config?.supportFeedback && localFeedback?.rating && onFeedback && (
+          <div className='ml-1 flex items-center gap-0.5 rounded-[10px] border-[0.5px] border-components-actionbar-border bg-components-actionbar-bg p-0.5 shadow-md backdrop-blur-sm'>
             {localFeedback?.rating === 'like' && (
               <ActionButton state={ActionButtonState.Active} onClick={() => handleFeedback(null)}>
                 <RiThumbUpLine className='h-4 w-4' />

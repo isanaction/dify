@@ -1,4 +1,5 @@
 import type { Viewport } from 'next'
+import RoutePrefixHandle from './routePrefixHandle'
 import I18nServer from './components/i18n-server'
 import BrowserInitor from './components/browser-initor'
 import SentryInitor from './components/sentry-initor'
@@ -52,6 +53,7 @@ const LocaleLayout = async ({
         data-public-top-k-max-value={process.env.NEXT_PUBLIC_TOP_K_MAX_VALUE}
         data-public-indexing-max-segmentation-tokens-length={process.env.NEXT_PUBLIC_INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH}
         data-public-loop-node-max-count={process.env.NEXT_PUBLIC_LOOP_NODE_MAX_COUNT}
+        data-public-max-iterations-num={process.env.NEXT_PUBLIC_MAX_ITERATIONS_NUM}
       >
         <BrowserInitor>
           <SentryInitor>
@@ -70,6 +72,7 @@ const LocaleLayout = async ({
             </TanstackQueryIniter>
           </SentryInitor>
         </BrowserInitor>
+        <RoutePrefixHandle />
       </body>
     </html>
   )

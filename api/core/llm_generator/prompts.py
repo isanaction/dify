@@ -1,6 +1,6 @@
 # Written by YORKI MINAKO🤡, Edited by Xiaoyi
 CONVERSATION_TITLE_PROMPT = """You need to decompose the user's input into "subject" and "intention" in order to accurately figure out what the user's input language actually is. 
-Notice: the language type user use could be diverse, which can be English, Chinese, Español, Arabic, Japanese, French, and etc.
+Notice: the language type user use could be diverse, which can be English, Chinese, Italian, Español, Arabic, Japanese, French, and etc.
 MAKE SURE your output is the SAME language as the user's input!
 Your output is restricted only to: (Input language) Intention + Subject(short as possible)
 Your output MUST be a valid JSON.
@@ -219,4 +219,111 @@ Welcome! I'm here to assist you with any questions or issues you might have with
 Here is the task description: {{INPUT_TEXT}}
 
 You just need to generate the output
+"""  # noqa: E501
+
+SYSTEM_STRUCTURED_OUTPUT_GENERATE = """
+Your task is to convert simple user descriptions into properly formatted JSON Schema definitions. When a user describes data fields they need, generate a complete, valid JSON Schema that accurately represents those fields with appropriate types and requirements.
+
+## Instructions:
+
+1. Analyze the user's description of their data needs
+2. Identify each property that should be included in the schema
+3. Determine the appropriate data type for each property
+4. Decide which properties should be required
+5. Generate a complete JSON Schema with proper syntax
+6. Include appropriate constraints when specified (min/max values, patterns, formats)
+7. Provide ONLY the JSON Schema without any additional explanations, comments, or markdown formatting.
+8. DO NOT use markdown code blocks (``` or ``` json). Return the raw JSON Schema directly.
+
+## Examples:
+
+### Example 1:
+**User Input:** I need name and age
+**JSON Schema Output:**
+{
+  "type": "object",
+  "properties": {
+    "name": { "type": "string" },
+    "age": { "type": "number" }
+  },
+  "required": ["name", "age"]
+}
+
+### Example 2:
+**User Input:** I want to store information about books including title, author, publication year and optional page count
+**JSON Schema Output:**
+{
+  "type": "object",
+  "properties": {
+    "title": { "type": "string" },
+    "author": { "type": "string" },
+    "publicationYear": { "type": "integer" },
+    "pageCount": { "type": "integer" }
+  },
+  "required": ["title", "author", "publicationYear"]
+}
+
+### Example 3:
+**User Input:** Create a schema for user profiles with email, password, and age (must be at least 18)
+**JSON Schema Output:**
+{
+  "type": "object",
+  "properties": {
+    "email": { 
+      "type": "string",
+      "format": "email"
+    },
+    "password": { 
+      "type": "string",
+      "minLength": 8
+    },
+    "age": { 
+      "type": "integer",
+      "minimum": 18
+    }
+  },
+  "required": ["email", "password", "age"]
+}
+
+### Example 4:
+**User Input:** I need album schema, the ablum has songs, and each song has name, duration, and artist.
+**JSON Schema Output:**
+{
+    "type": "object",
+    "properties": {
+        "properties": {
+            "songs": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "duration": {
+                            "type": "string"
+                        },
+                        "aritst": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "id",
+                        "duration",
+                        "aritst"
+                    ]
+                }
+            }
+        }
+    },
+    "required": [
+        "songs"
+    ]
+}
+
+Now, generate a JSON Schema based on my description
 """  # noqa: E501
