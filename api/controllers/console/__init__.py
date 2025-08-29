@@ -56,6 +56,7 @@ from .app import (
     conversation,
     conversation_variables,
     generator,
+    mcp_server,
     message,
     model_config,
     ops_trace,
@@ -63,12 +64,13 @@ from .app import (
     statistic,
     workflow,
     workflow_app_log,
+    workflow_draft_variable,
     workflow_run,
     workflow_statistic,
 )
 
 # Import auth controllers
-from .auth import activate, data_source_bearer_auth, data_source_oauth, forgot_password, login, oauth
+from .auth import activate, data_source_bearer_auth, data_source_oauth, forgot_password, login, oauth, oauth_server
 
 # Import billing controllers
 from .billing import billing, compliance

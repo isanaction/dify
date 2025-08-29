@@ -10,7 +10,8 @@ from services.workflow_service import DraftWorkflowDeletionError, WorkflowInUseE
 
 @pytest.fixture
 def workflow_setup():
-    workflow_service = WorkflowService()
+    mock_session_maker = MagicMock()
+    workflow_service = WorkflowService(mock_session_maker)
     session = MagicMock(spec=Session)
     tenant_id = "test-tenant-id"
     workflow_id = "test-workflow-id"
@@ -40,6 +41,10 @@ def workflow_setup():
 
 def test_delete_workflow_success(workflow_setup):
     # Setup mocks
+
+    # Mock the tool provider query to return None (not published as a tool)
+    workflow_setup["session"].query.return_value.where.return_value.first.return_value = None
+
     workflow_setup["session"].scalar = MagicMock(
         side_effect=[workflow_setup["workflow"], None]
     )  # Return workflow first, then None for app
@@ -97,7 +102,12 @@ def test_delete_workflow_in_use_by_app_error(workflow_setup):
 
 def test_delete_workflow_published_as_tool_error(workflow_setup):
     # Setup mocks
-    workflow_setup["workflow"].tool_published = True
+    from models.tools import WorkflowToolProvider
+
+    # Mock the tool provider query
+    mock_tool_provider = MagicMock(spec=WorkflowToolProvider)
+    workflow_setup["session"].query.return_value.where.return_value.first.return_value = mock_tool_provider
+
     workflow_setup["session"].scalar = MagicMock(
         side_effect=[workflow_setup["workflow"], None]
     )  # Return workflow first, then None for app

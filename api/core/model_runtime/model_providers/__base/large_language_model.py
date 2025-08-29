@@ -13,14 +13,16 @@ from core.model_runtime.entities.llm_entities import LLMResult, LLMResultChunk, 
 from core.model_runtime.entities.message_entities import (
     AssistantPromptMessage,
     PromptMessage,
+    PromptMessageContentUnionTypes,
     PromptMessageTool,
+    TextPromptMessageContent,
 )
 from core.model_runtime.entities.model_entities import (
     ModelType,
     PriceType,
 )
 from core.model_runtime.model_providers.__base.ai_model import AIModel
-from core.plugin.manager.model import PluginModelManager
+from core.plugin.impl.model import PluginModelClient
 
 logger = logging.getLogger(__name__)
 
@@ -140,7 +142,7 @@ class LargeLanguageModel(AIModel):
         result: Union[LLMResult, Generator[LLMResultChunk, None, None]]
 
         try:
-            plugin_model_manager = PluginModelManager()
+            plugin_model_manager = PluginModelClient()
             result = plugin_model_manager.invoke_llm(
                 tenant_id=self.tenant_id,
                 user_id=user or "unknown",
@@ -237,7 +239,7 @@ class LargeLanguageModel(AIModel):
     def _invoke_result_generator(
         self,
         model: str,
-        result: Generator,
+        result: Generator[LLMResultChunk, None, None],
         credentials: dict,
         prompt_messages: Sequence[PromptMessage],
         model_parameters: dict,
@@ -254,10 +256,20 @@ class LargeLanguageModel(AIModel):
         :return: result generator
         """
         callbacks = callbacks or []
-        assistant_message = AssistantPromptMessage(content="")
+        message_content: list[PromptMessageContentUnionTypes] = []
         usage = None
         system_fingerprint = None
         real_model = model
+
+        def _update_message_content(content: str | list[PromptMessageContentUnionTypes] | None):
+            if not content:
+                return
+            if isinstance(content, list):
+                message_content.extend(content)
+                return
+            if isinstance(content, str):
+                message_content.append(TextPromptMessageContent(data=content))
+                return
 
         try:
             for chunk in result:
@@ -280,7 +292,8 @@ class LargeLanguageModel(AIModel):
                     callbacks=callbacks,
                 )
 
-                assistant_message.content += chunk.delta.message.content
+                _update_message_content(chunk.delta.message.content)
+
                 real_model = chunk.model
                 if chunk.delta.usage:
                     usage = chunk.delta.usage
@@ -290,6 +303,7 @@ class LargeLanguageModel(AIModel):
         except Exception as e:
             raise self._transform_invoke_error(e)
 
+        assistant_message = AssistantPromptMessage(content=message_content)
         self._trigger_after_invoke_callbacks(
             model=model,
             result=LLMResult(
@@ -326,7 +340,7 @@ class LargeLanguageModel(AIModel):
         :return:
         """
         if dify_config.PLUGIN_BASED_TOKEN_COUNTING_ENABLED:
-            plugin_model_manager = PluginModelManager()
+            plugin_model_manager = PluginModelClient()
             return plugin_model_manager.get_llm_num_tokens(
                 tenant_id=self.tenant_id,
                 user_id="unknown",
@@ -426,7 +440,9 @@ class LargeLanguageModel(AIModel):
                     if callback.raise_error:
                         raise e
                     else:
-                        logger.warning(f"Callback {callback.__class__.__name__} on_before_invoke failed with error {e}")
+                        logger.warning(
+                            "Callback %s on_before_invoke failed with error %s", callback.__class__.__name__, e
+                        )
 
     def _trigger_new_chunk_callbacks(
         self,
@@ -473,7 +489,7 @@ class LargeLanguageModel(AIModel):
                     if callback.raise_error:
                         raise e
                     else:
-                        logger.warning(f"Callback {callback.__class__.__name__} on_new_chunk failed with error {e}")
+                        logger.warning("Callback %s on_new_chunk failed with error %s", callback.__class__.__name__, e)
 
     def _trigger_after_invoke_callbacks(
         self,
@@ -521,7 +537,9 @@ class LargeLanguageModel(AIModel):
                     if callback.raise_error:
                         raise e
                     else:
-                        logger.warning(f"Callback {callback.__class__.__name__} on_after_invoke failed with error {e}")
+                        logger.warning(
+                            "Callback %s on_after_invoke failed with error %s", callback.__class__.__name__, e
+                        )
 
     def _trigger_invoke_error_callbacks(
         self,
@@ -569,4 +587,6 @@ class LargeLanguageModel(AIModel):
                     if callback.raise_error:
                         raise e
                     else:
-                        logger.warning(f"Callback {callback.__class__.__name__} on_invoke_error failed with error {e}")
+                        logger.warning(
+                            "Callback %s on_invoke_error failed with error %s", callback.__class__.__name__, e
+                        )

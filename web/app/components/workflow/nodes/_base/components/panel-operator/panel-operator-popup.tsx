@@ -83,14 +83,16 @@ const PanelOperatorPopup = ({
 
   const link = useNodeHelpLink(data.type)
 
+  const isChildNode = !!(data.isInIteration || data.isInLoop)
+
   return (
     <div className='w-[240px] rounded-lg border-[0.5px] border-components-panel-border bg-components-panel-bg shadow-xl'>
       {
-        (showChangeBlock || canRunBySingle(data.type)) && (
+        (showChangeBlock || canRunBySingle(data.type, isChildNode)) && (
           <>
             <div className='p-1'>
               {
-                canRunBySingle(data.type) && (
+                canRunBySingle(data.type, isChildNode) && (
                   <div
                     className={`
                       flex h-8 cursor-pointer items-center rounded-lg px-3 text-sm text-text-secondary
@@ -117,7 +119,7 @@ const PanelOperatorPopup = ({
                 )
               }
             </div>
-            <div className='h-[1px] bg-divider-regular'></div>
+            <div className='h-px bg-divider-regular'></div>
           </>
         )
       }
@@ -146,7 +148,7 @@ const PanelOperatorPopup = ({
                 <ShortcutsName keys={['ctrl', 'd']} />
               </div>
             </div>
-            <div className='h-[1px] bg-divider-regular'></div>
+            <div className='h-px bg-divider-regular'></div>
             <div className='p-1'>
               <div
                 className={`
@@ -159,7 +161,7 @@ const PanelOperatorPopup = ({
                 <ShortcutsName keys={['del']} />
               </div>
             </div>
-            <div className='h-[1px] bg-divider-regular'></div>
+            <div className='h-px bg-divider-regular'></div>
           </>
         )
       }
@@ -175,7 +177,7 @@ const PanelOperatorPopup = ({
                 {t('workflow.panel.helpLink')}
               </a>
             </div>
-            <div className='h-[1px] bg-divider-regular'></div>
+            <div className='h-px bg-divider-regular'></div>
           </>
         )
       }

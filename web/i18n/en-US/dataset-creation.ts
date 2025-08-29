@@ -35,7 +35,8 @@ const translation = {
     },
     uploader: {
       title: 'Upload file',
-      button: 'Drag and drop file, or',
+      button: 'Drag and drop file or folder, or',
+      buttonSingleFile: 'Drag and drop file, or',
       browse: 'Browse',
       tip: 'Supports {{supportTypes}}. Max {{size}}MB each.',
       validation: {
@@ -80,10 +81,8 @@ const translation = {
       run: 'Run',
       firecrawlTitle: 'Extract web content with 🔥Firecrawl',
       firecrawlDoc: 'Firecrawl docs',
-      firecrawlDocLink: 'https://docs.dify.ai/guides/knowledge-base/sync-from-website',
       watercrawlTitle: 'Extract web content with Watercrawl',
       watercrawlDoc: 'Watercrawl docs',
-      watercrawlDocLink: 'https://docs.dify.ai/guides/knowledge-base/sync-from-website',
       jinaReaderTitle: 'Convert the entire site to Markdown',
       jinaReaderDoc: 'Learn more about Jina Reader',
       jinaReaderDocLink: 'https://jina.ai/reader',
